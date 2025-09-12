@@ -11,11 +11,11 @@ public enum ErrorCode implements BaseCode {
     // 처음엔 class인 줄 알았으나 아니였음
 
     // common error
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"COMMON500","서버 에러입니다."),
-    BAD_REQUEST(HttpStatus.BAD_REQUEST,"COMMON400","잘못된 요청입니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMOON401","인증이 필요합니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN,"COMMON403","금지된 요청입니다."),
-    NOT_FOUND(HttpStatus.NOT_FOUND,"COMMON404","찾을 수 없는 요청입니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"COMMON_500","서버 에러입니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST,"COMMON_400","잘못된 요청입니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON_401","인증이 필요합니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN,"COMMON_403","금지된 요청입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND,"COMMON_404","찾을 수 없는 요청입니다."),
 
     // User Error
     USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "USER_401", "로그인 정보가 없습니다."),

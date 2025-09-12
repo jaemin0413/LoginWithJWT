@@ -25,7 +25,7 @@ public abstract class BaseEntity {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @JsonFormat(timezone ="Asia/seoul")
+    @JsonFormat(timezone ="Asia/Seoul")
     private LocalDateTime updatedAt;
 
     @Column(name="deleted_at")
