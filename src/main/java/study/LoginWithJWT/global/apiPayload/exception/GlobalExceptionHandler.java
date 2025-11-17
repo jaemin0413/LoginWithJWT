@@ -114,4 +114,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(Response.fail(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<Response<Void>> handleAuthException(AuthException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+
+        log.warn("[AuthException] code: {}, message: {}", errorCode.getCode(), errorCode.getMessage());
+
+        Response<Void> response = Response.fail(errorCode);
+        return new ResponseEntity<>(response, errorCode.getStatus());
+    }
+
 }

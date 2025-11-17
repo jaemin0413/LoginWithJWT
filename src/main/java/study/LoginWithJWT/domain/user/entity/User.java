@@ -1,8 +1,6 @@
 package study.LoginWithJWT.domain.user.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import org.antlr.v4.runtime.misc.NotNull;
 import study.LoginWithJWT.global.common.BaseEntity;
 
 @Entity

@@ -5,6 +5,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import study.LoginWithJWT.global.apiPayload.code.ErrorCode;
 import study.LoginWithJWT.global.apiPayload.exception.AuthException;
@@ -16,7 +17,13 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
     // jwt 생성, 검증, 파싱하는 provider
-    private final JwtProperties jwtProperties;
+
+    @Value("${spring.jwt.secret}")
+    private String secret;
+    @Value("${spring.jwt.access-token-validity}")
+    private long accessTokenValidity;
+    @Value("${spring.jwt.refresh-token-validity}")
+    private long refreshTokenValidity;
 
     private JwtParser jwtParser;
     private Key secretKey;
@@ -26,25 +33,30 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void init() {
-        this.secretKey= Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getSecret()) );
+        this.secretKey= Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret) );
         //base64로 인코딩된 비밀키 가져온 다음 암호화
         this.jwtParser = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build();
     }
 
-    public JwtTokenProvider(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
-    }
-
     public String createdAccessToken(String email) {
         try {
-            return generateToken(email, jwtProperties.getRefreshTokenValidity(), "refresh");
-        } catch (Exception e) {
+            return generateToken(email, accessTokenValidity, "access");
+        } catch (JwtException e) {
             throw new AuthException(ErrorCode.JWT_GENERATION_FAILED);
         }
     }
 
+    public String createdRefreshToken(String email) {
+        try {
+            return generateToken(email, refreshTokenValidity, "refresh");
+        } catch (JwtException e) {
+            throw new AuthException(ErrorCode.JWT_GENERATION_FAILED);
+        }
+    }
+
+    // jwt 토큰 생성, 검증, 인증 객체를 만들어 반환
     private String generateToken(String email, long validity,String category) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + validity);
@@ -58,6 +70,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // jwt 토큰 유효성 검증, 파싱 성공시 유효, 아니라면 예외 반환
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -107,7 +120,7 @@ public class JwtTokenProvider {
             validateToken(token);
             return true;
         }
-        catch (JwtException e) {
+        catch (AuthException e) {
             return false;
         }
     }

@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: LoginWithJWT
+    
   datasource:
     url: ${LOCAL_DB_URL}
     username: ${LOCAL_DB_USERNAME}
@@ -18,4 +21,7 @@ spring:
     secret: ${JWT_SECRET_KEY}
     access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY}
     refresh-token-validity: ${JWT_REFRESH_TOKEN_VALIDITY}
+
+server:
+  port: 8080
 
