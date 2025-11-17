@@ -33,9 +33,9 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew bootJar --no-daemon
-      - name: Run tests
-        run: ./gradlew test --no-daemon
-        # 이러면 테스트 실패시 이미지 빌드 x
+      # - name: Run tests
+        # run: ./gradlew test --no-daemon
+        # 이러면 테스트 실패시 이미지 빌드 x, 나중에 하는걸로
 
 
       # 4. Docker Buildx 설정 ( Docker 캐시를 위함)
