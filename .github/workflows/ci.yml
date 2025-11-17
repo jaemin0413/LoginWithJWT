@@ -4,7 +4,7 @@ name: CI - Build and Push Docker Image to Docker Hub
 # 워크플로우 트리거 -> main 브랜치에 푸쉬할 때
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 # 실행될 작업 정의
 jobs:
@@ -24,14 +24,19 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle' # gradle 의존성 캐싱, 이거 안 하면 한 번 받은 라이브러리는 캐시해두고 다음엔 바로 사용.
-                          # 이거 안 하면 할 때마다 gradle 다 뒤져서 다운받아야 함
+          cache: 'gradle'
+            # gradle 의존성 캐싱, 이거 안 하면 한 번 받은 라이브러리는 캐시해두고 다음엔 바로 사용.
+            # 이거 안 하면 할 때마다 gradle 다 뒤져서 다운받아야 함
 
       # 3. 실행 권한 추가 및 빌드
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew bootJar --no-daemon
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+        # 이러면 테스트 실패시 이미지 빌드 x
+
 
       # 4. Docker Buildx 설정 ( Docker 캐시를 위함)
       - name: Set up Docker Buildx
