@@ -1,8 +1,6 @@
 package study.LoginWithJWT.domain.user.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import org.antlr.v4.runtime.misc.NotNull;
 import study.LoginWithJWT.global.common.BaseEntity;
 
 @Entity
@@ -19,6 +17,8 @@ public class User extends BaseEntity {
     @Column(unique=true, nullable=false)
     private String loginId;
 
+    private String email;
+
     private String name;
     @Column(nullable = false)
     private String password;
@@ -31,6 +31,7 @@ public class User extends BaseEntity {
     public Long getId() {return id;}
     public LoginType getLoginType() {return loginType;}
     public String getLoginId() {return loginId;}
+    public String getEmail() {return email;}
     public String getName() {return name;}
     public String getPassword() {return password;}
 
@@ -38,6 +39,8 @@ public class User extends BaseEntity {
     public void setId(Long id) {this.id = id;}
     public void setLoginType(LoginType loginType) {this.loginType = loginType;}
     public void setLoginId(String loginId) {this.loginId = loginId;}
+
+    public void setEmail(String email) {this.email = email;}
     public void setName(String name) {this.name = name;}
     public void setPassword(String password) {this.password = password;}
 
