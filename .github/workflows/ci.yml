@@ -56,7 +56,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/loginWithJWT:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
           #  Docker 레이어 캐시 설정
           cache-from: type=gha,mode=max
           cache-to: type=gha,mode=max
