@@ -1,7 +1,7 @@
 # Run stage
 # 이미지 생성
 # 빌드 단계에서 생성된 JAR 파일만 복사
-FROM bellsoft/liberica-openjdk-alpine:17-jre
+FROM bellsoft/liberica-openjdk-alpine:17
 
 WORKDIR /app
 

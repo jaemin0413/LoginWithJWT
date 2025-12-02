@@ -4,7 +4,7 @@ name: CI - Build and Push Docker Image to Docker Hub
 # 워크플로우 트리거 -> main 브랜치에 푸쉬할 때
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 # 실행될 작업 정의
 jobs:
@@ -24,14 +24,19 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle' # gradle 의존성 캐싱, 이거 안 하면 한 번 받은 라이브러리는 캐시해두고 다음엔 바로 사용.
-                          # 이거 안 하면 할 때마다 gradle 다 뒤져서 다운받아야 함
+          cache: 'gradle'
+            # gradle 의존성 캐싱, 이거 안 하면 한 번 받은 라이브러리는 캐시해두고 다음엔 바로 사용.
+            # 이거 안 하면 할 때마다 gradle 다 뒤져서 다운받아야 함
 
       # 3. 실행 권한 추가 및 빌드
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew bootJar --no-daemon
+      # - name: Run tests
+        # run: ./gradlew test --no-daemon
+        # 이러면 테스트 실패시 이미지 빌드 x, 나중에 하는걸로
+
 
       # 4. Docker Buildx 설정 ( Docker 캐시를 위함)
       - name: Set up Docker Buildx
@@ -51,8 +56,42 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/loginWithJWT:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
           #  Docker 레이어 캐시 설정
           cache-from: type=gha,mode=max
           cache-to: type=gha,mode=max
           # 이러면 변경된 부분만 새로 빌드함
+
+  deploy:
+    name: Deploy to EX2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_KEY}}
+          port: 22
+          script: |
+            # 도커 허브에서 최신 이미지 가져오기
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
+            
+            #기존 서버 중지 및 삭제
+            sudo docker stop login-server || true
+            sudo docker rm login-server || true
+            
+            # 새 컨테이너 실행
+            sudo docker run -d -p 8080:8080 \
+              -e LOCAL_DB_URL='${{ secrets.DB_URL }}' \
+              -e LOCAL_DB_USERNAME='${{ secrets.DB_USERNAME }}' \
+              -e LOCAL_DB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
+              -e JWT_SECRET_KEY='${{ secrets.JWT_SECRET }}' \
+              -e JWT_ACCESS_TOKEN_VALIDITY='3600000' \
+              -e JWT_REFRESH_TOKEN_VALIDITY='1209600000' \
+              --name login-server ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
+            
+            # 미사용 이미지 정리
+            sudo docker image prune -f
