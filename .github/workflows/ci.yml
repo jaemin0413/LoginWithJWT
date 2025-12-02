@@ -61,3 +61,31 @@ jobs:
           cache-from: type=gha,mode=max
           cache-to: type=gha,mode=max
           # 이러면 변경된 부분만 새로 빌드함
+
+deploy:
+  name: Deploy to EX2
+  needs: build-and-push
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{secrets.EC2_HOST}}
+        username: ${{secrets.EC2_USER}}
+        key: ${{secrets.EC2_KEY}}
+        port: 22
+        script: |
+          # 도커 허브에서 최신 이미지 가져오기
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
+          
+          #기존 서버 중지 및 삭제
+          sudo docker stop login-server || true
+          sudo docker rm login-server || true
+          
+          # 새 컨테이너 실행
+          sudo docker run -d -p 8080:8080 --name login-server ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
+          
+          # 미사용 이미지 정리
+          sudo docker image prune -f
+          
