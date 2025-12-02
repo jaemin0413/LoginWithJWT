@@ -84,7 +84,14 @@ jobs:
             sudo docker rm login-server || true
             
             # 새 컨테이너 실행
-            sudo docker run -d -p 8080:8080 --name login-server ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
+            sudo docker run -d -p 8080:8080 \
+              -e LOCAL_DB_URL='${{ secrets.DB_URL }}' \
+              -e LOCAL_DB_USERNAME='${{ secrets.DB_USERNAME }}' \
+              -e LOCAL_DB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
+              -e JWT_SECRET_KEY='${{ secrets.JWT_SECRET }}' \
+              -e JWT_ACCESS_TOKEN_VALIDITY='3600000' \
+              -e JWT_REFRESH_TOKEN_VALIDITY='1209600000' \
+              --name login-server ${{ secrets.DOCKERHUB_USERNAME }}/loginwithjwt:latest
             
             # 미사용 이미지 정리
             sudo docker image prune -f
